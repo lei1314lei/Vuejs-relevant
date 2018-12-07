@@ -7,11 +7,6 @@
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
         <script src="http://static.runoob.com/assets/jquery-validation-1.14.0/dist/jquery.validate.min.js"></script>
         <script src="http://static.runoob.com/assets/jquery-validation-1.14.0/dist/localization/messages_zh.js"></script>
-    </head>
-    <body>
-        <div id="app">
-            <vue-form :formdata=formdata ></vue-form>
-        </div>
         <script>
             Vue.component('form-field-text',{
                 props:['fieldname','fieldvalue','validation'],
@@ -58,15 +53,11 @@
                 render:function(createElement){
                     return createElement("form",this.subEles(createElement))
                 },
-                beforeUpdate:function(){
-                },
                 methods:{
                     subEles:function(createElement){
                         var eles=new Array();
-                        console.log(this.formdata.field_ele)
                         for(var field in this.formdata.field_ele)
                         {
-                            console.log(field )
                             var type=this.formdata.field_ele[field].type;
                             var cpntName='form-field-'+type;
                             var props={
@@ -86,57 +77,39 @@
                 }
 
             })
-            
+        </script>
+    </head>
+    <body>
+        <div id="app">
+            <vue-form :formdata=formdata ></vue-form>
+        </div>
+        <script>
+            var formdata={
+                    field_value :{warehouse:"", country:"", email:"",},
+                    field_ele   :{
+                        warehouse:{type:'text',},
+                        country:{
+                            type:'select',
+                            options:[{val:1,'valtext':'A'},{val:2,'valtext':'B'},{val:3,'valtext':'C'}]
+                        },
+                        email:{type:'text',},
+                    },
+                    field_validation:{
+                        rules:{
+                            warehouse:{ required:true,},
+                            country:{},
+                            email:{required:true,email:true
+                            },
+                        },
+                    }
+                };
             var form=new Vue({
                 el:"#app",
                 data:{
-                    formdata:{
-                        field_value:{
-                            warehouse:"",
-                            country:"",
-                            email:"",
-                        },
-                        field_ele:{
-                            warehouse:{
-                                type:'text',
-                            },
-                            country:{
-                                type:'select',
-                                options:[
-                                    {val:1,'valtext':'A'},
-                                    {val:2,'valtext':'B'},
-                                    {val:3,'valtext':'C'}
-                                ]
-                            },
-                            email:{
-                                type:'text',
-                            },
-                        },
-                        field_validation:{
-                            rules:{
-                                warehouse:{},
-                                country:{},
-                                email:{},
-                            },
-                        }
-                    }
+                    formdata:formdata
                 },
-
             });
-            
-            var validations=
-             {
-                rules:{
-                    warehouse:{
-                        required:true,
-                    },
-                    email:{
-                        required:true,
-                        email:true
-                    }
-                }
-            } ;
-           jQuery("form").validate(validations);
+           jQuery("form").validate(formdata.field_validation);
         </script>
     </body>
 </html>
