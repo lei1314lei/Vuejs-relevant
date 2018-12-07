@@ -10,7 +10,7 @@
     </head>
     <body>
         <div id="app">
-            <vue-form v-bind:formdata=formdata></vue-form>
+            <vue-form :formdata=formdata ></vue-form>
         </div>
         <script>
             Vue.component('form-field-text',{
@@ -18,13 +18,12 @@
                 data:function(){
                     return {
                         cur_fieldvalue:this.fieldvalue,
-                        inputHtml:'',
                     }
                 },
                 template:'<div class="details-form-field" ><label >{{fieldname}}</label> <input  :id=fieldname :name=fieldname  v-model="cur_fieldvalue" /> </div>',
                 watch:{
-                       cur_fieldvalue:function(newVal,oldVal){      
-                           this.$parent.$data[this.fieldname]['value']=newVal
+                       cur_fieldvalue:function(newVal,oldVal){    
+                           this.$parent.$data['field_value'][this.fieldname]=newVal
                        },
                        fieldvalue:function(newVal,oldVal){
                            this.cur_fieldvalue=newVal;
@@ -42,7 +41,7 @@
                 },
                 watch:{
                        cur_fieldvalue:function(newVal,oldVal){       
-                           this.$parent.$data[this.fieldname]['value']=newVal
+                           this.$parent.$data['field_value'][this.fieldname]=newVal
                        },
                        fieldvalue:function(newVal,oldVal){
                            this.cur_fieldvalue=newVal;
@@ -52,7 +51,7 @@
             });
             
             Vue.component('vue-form',{
-                props:['formdata'],
+                props:['formdata',],
                 data:function(){
                     return this.formdata;
                 },
@@ -61,40 +60,21 @@
                 },
                 beforeUpdate:function(){
                 },
-                mounted:function(){
-                     this.iniValidation();
-                },
                 methods:{
-                    iniValidation:function(){
-                        var rules={};
-                        var messages={};
-                        for(var field in this.formdata)
-                        {
-                            if ('validation' in this.formdata[field])
-                            {
-                                var validation = this.formdata[field].validation;
-                                rules[field]=validation.rules;
-                                messages[field]=validation.messages;
-                            }
-
-                        }
-                        
-   
-                        // jQuery("form").validate();
-                    },
                     subEles:function(createElement){
                         var eles=new Array();
-                        for(var i in this.formdata)
+                        console.log(this.formdata.field_ele)
+                        for(var field in this.formdata.field_ele)
                         {
-                            var type=this.formdata[i].type;
+                            console.log(field )
+                            var type=this.formdata.field_ele[field].type;
                             var cpntName='form-field-'+type;
                             var props={
-                                    fieldname:i,
-                                    fieldvalue:this.formdata[i].value,
-                                    validation:this.formdata[i].validation,
+                                    fieldname:field,
+                                    fieldvalue:this.formdata.field_value[field],
                                 };
                             if(type=='select'){
-                               props.options=this.formdata[i].options;
+                               props.options=this.formdata.field_ele[field].options;
                             }    
                             var ele=createElement(cpntName,{
                                 props:props
@@ -111,24 +91,35 @@
                 el:"#app",
                 data:{
                     formdata:{
-                        warehouse:{
-                            type:'text',
-                            value:"",
+                        field_value:{
+                            warehouse:"",
+                            country:"",
+                            email:"",
                         },
-                        country:{
-                            type:'select',
-                            value:'',
-                            options:[
-                                {val:1,'valtext':'A'},
-                                {val:2,'valtext':'B'},
-                                {val:3,'valtext':'C'}
-                            ],
+                        field_ele:{
+                            warehouse:{
+                                type:'text',
+                            },
+                            country:{
+                                type:'select',
+                                options:[
+                                    {val:1,'valtext':'A'},
+                                    {val:2,'valtext':'B'},
+                                    {val:3,'valtext':'C'}
+                                ]
+                            },
+                            email:{
+                                type:'text',
+                            },
                         },
-                        email:{
-                            type:'text',
-                            value:'',
+                        field_validation:{
+                            rules:{
+                                warehouse:{},
+                                country:{},
+                                email:{},
+                            },
                         }
-                    },
+                    }
                 },
 
             });
