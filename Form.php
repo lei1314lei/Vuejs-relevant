@@ -60,8 +60,23 @@
                         cure_options:eval(this.options),
                     }
                 },
-                created:function(){
-                    console.log(this.$data);
+                watch:{
+                       cur_fieldvalue:function(newVal,oldVal){       
+                           this.$parent.$data['field_value'][this.fieldname]=newVal
+                       },
+                       fieldvalue:function(newVal,oldVal){
+                           this.cur_fieldvalue=newVal;
+                       },
+                },
+                template:'<div class="details-form-field" ><span class="title">{{title}}</span><span v-for="option in cure_options"><input type="checkbox" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="fieldname">{{option.label}}</label></span> </div>',
+            })
+            Vue.component("form-field-radio",{
+                props:['title','fieldname','fieldvalue','options'],
+                data:function(){
+                    return {
+                        cur_fieldvalue:this.fieldvalue,
+                        cure_options:eval(this.options),
+                    }
                 },
                 watch:{
                        cur_fieldvalue:function(newVal,oldVal){       
@@ -71,8 +86,10 @@
                            this.cur_fieldvalue=newVal;
                        },
                 },
-                template:'<div class="details-form-field" ><span class="title">{{title}}</span><span v-for="option in cure_options"><input type="checkbox" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="fieldname">{{option.label}}</label></span>{{cur_fieldvalue}}</div>',
+                template:'<div class="details-form-field" ><span class="title">{{title}}</span><span v-for="option in cure_options"><input type="radio" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="fieldname">{{option.label}}</label></span> </div>',
             })
+            
+            
             
             Vue.component('vue-form',{
                 props:['formdata',],
@@ -97,7 +114,7 @@
                             if(type=='select'){
                                props.options=this.formdata.field_ele[field].options;
                             }    
-                            else if(type=='checkbox')
+                            else if(type=='checkbox' || type=='radio')
                             {
                                 props.options=this.formdata.field_ele[field].options;
                             }
@@ -119,7 +136,7 @@
         </div>
         <script>
             var formdata={
-                    field_value :{warehouse:"", country:"", email:"",'related_industry':["fashion"]},
+                    field_value :{warehouse:"", country:"", email:"",'related_industry':"fashion",services_required:[]},
                     field_ele   :{
                         warehouse:{
                             title:'Warehouse',
@@ -136,8 +153,13 @@
                         },
                         related_industry:{
                             title:'Related Industry',
-                            type:'checkbox',
+                            type:'radio',
                             options:[{val:'fashion',label:'fashion'},{val:'cosmetics',label:'cosmetics'}],
+                        },
+                        services_required:{
+                            title:'Services Required',
+                            type:'checkbox',
+                            options:[{val:'warehousing',label:'warehousing'},{val:'local distribution',label:'local distribution'}],
                         },
                     },
                     field_validation:{
