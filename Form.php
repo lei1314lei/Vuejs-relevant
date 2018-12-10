@@ -4,18 +4,24 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<!--        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>  -->
+       <script src="./prototype.js"></script>
+        <script src="./vue.js"></script>
+         
+        
+        
+       
         <script src="http://static.runoob.com/assets/jquery-validation-1.14.0/dist/jquery.validate.min.js"></script>
         <script src="http://static.runoob.com/assets/jquery-validation-1.14.0/dist/localization/messages_zh.js"></script>
         <script>
             Vue.component('form-field-text',{
-                props:['fieldname','fieldvalue','validation'],
+                props:['title','fieldname','fieldvalue','validation'],
                 data:function(){
                     return {
                         cur_fieldvalue:this.fieldvalue,
                     }
                 },
-                template:'<div class="details-form-field" ><label >{{fieldname}}</label> <input  :id=fieldname :name=fieldname  v-model="cur_fieldvalue" /> </div>',
+                template:'<div class="details-form-field" ><label class="title" >{{title}}</label> <input  :id=fieldname :name=fieldname  v-model="cur_fieldvalue" /> </div>',
                 watch:{
                        cur_fieldvalue:function(newVal,oldVal){    
                            this.$parent.$data['field_value'][this.fieldname]=newVal
@@ -27,7 +33,7 @@
             })
             
             Vue.component("form-field-select",{
-                props:['fieldname','fieldvalue','validation','options'],
+                props:['title','fieldname','fieldvalue','validation','options'],
                 data:function(){
                     return {
                         cur_fieldvalue:this.fieldvalue,
@@ -42,8 +48,31 @@
                            this.cur_fieldvalue=newVal;
                        },
                 },
-                template:'<div class="details-form-field" ><label >{{fieldname}}</label> <select :id=fieldname :name=fieldname v-model=cur_fieldvalue> <option v-for="option in cure_options" :value="option.val">{{option.valtext}}</option> </select></div>',
+                template:'<div class="details-form-field" ><label class="title" >{{title}}</label> <select :id=fieldname :name=fieldname v-model=cur_fieldvalue> <option v-for="option in cure_options" :value="option.val">{{option.valtext}}</option> </select></div>',
             });
+            
+            
+            Vue.component("form-field-checkbox",{
+                props:['title','fieldname','fieldvalue','options'],
+                data:function(){
+                    return {
+                        cur_fieldvalue:this.fieldvalue,
+                        cure_options:eval(this.options),
+                    }
+                },
+                created:function(){
+                    console.log(this.$data);
+                },
+                watch:{
+                       cur_fieldvalue:function(newVal,oldVal){       
+                           this.$parent.$data['field_value'][this.fieldname]=newVal
+                       },
+                       fieldvalue:function(newVal,oldVal){
+                           this.cur_fieldvalue=newVal;
+                       },
+                },
+                template:'<div class="details-form-field" ><span class="title">{{title}}</span><span v-for="option in cure_options"><input type="checkbox" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="fieldname">{{option.label}}</label></span>{{cur_fieldvalue}}</div>',
+            })
             
             Vue.component('vue-form',{
                 props:['formdata',],
@@ -61,12 +90,17 @@
                             var type=this.formdata.field_ele[field].type;
                             var cpntName='form-field-'+type;
                             var props={
+                                    title:this.formdata.field_ele[field]['title'],
                                     fieldname:field,
                                     fieldvalue:this.formdata.field_value[field],
                                 };
                             if(type=='select'){
                                props.options=this.formdata.field_ele[field].options;
                             }    
+                            else if(type=='checkbox')
+                            {
+                                props.options=this.formdata.field_ele[field].options;
+                            }
                             var ele=createElement(cpntName,{
                                 props:props
                             });
@@ -85,14 +119,26 @@
         </div>
         <script>
             var formdata={
-                    field_value :{warehouse:"", country:"", email:"",},
+                    field_value :{warehouse:"", country:"", email:"",'related_industry':["fashion"]},
                     field_ele   :{
-                        warehouse:{type:'text',},
+                        warehouse:{
+                            title:'Warehouse',
+                            type:'text',
+                        },
                         country:{
+                            title:'Country',
                             type:'select',
                             options:[{val:1,'valtext':'A'},{val:2,'valtext':'B'},{val:3,'valtext':'C'}]
                         },
-                        email:{type:'text',},
+                        email:{
+                            title:'Email',
+                            type:'text',
+                        },
+                        related_industry:{
+                            title:'Related Industry',
+                            type:'checkbox',
+                            options:[{val:'fashion',label:'fashion'},{val:'cosmetics',label:'cosmetics'}],
+                        },
                     },
                     field_validation:{
                         rules:{
