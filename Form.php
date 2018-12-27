@@ -4,9 +4,8 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
-<!--        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>  -->
-       <script src="./prototype.js"></script>
-        <script src="./vue.js"></script>
+       <script src="https://ajax.googleapis.com/ajax/libs/prototype/1.7.3.0/prototype.js"></script>
+       <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
          
         
         
@@ -14,85 +13,68 @@
         <script src="http://static.runoob.com/assets/jquery-validation-1.14.0/dist/jquery.validate.min.js"></script>
         <script src="http://static.runoob.com/assets/jquery-validation-1.14.0/dist/localization/messages_zh.js"></script>
         <script>
-            Vue.component('form-field-text',{
+            var formFieldWatch={
+                       cur_fieldvalue:function(newVal,oldVal){    
+                           this.$parent.formdata['field_value'][this.fieldname]=newVal
+                       },
+                       fieldvalue:function(newVal,oldVal){
+                           this.cur_fieldvalue=newVal;
+                       },
+                }
+            var formFieldText={
                 props:['title','fieldname','fieldvalue','validation'],
                 data:function(){
                     return {
                         cur_fieldvalue:this.fieldvalue,
                     }
                 },
-                template:'<div class="details-form-field" ><label class="title" >{{title}}</label> <input  :id=fieldname :name=fieldname  v-model="cur_fieldvalue" /> </div>',
-                watch:{
-                       cur_fieldvalue:function(newVal,oldVal){    
-                           this.$parent.$data['field_value'][this.fieldname]=newVal
-                       },
-                       fieldvalue:function(newVal,oldVal){
-                           this.cur_fieldvalue=newVal;
-                       },
-                }
-            })
-            
-            Vue.component("form-field-select",{
+                template:'<div class="details-form-field" ><div class="tips"><label class="title" >{{title}}</label> </div> <div class="content"> <input  :id=fieldname :name=fieldname  v-model="cur_fieldvalue" /> </div></div>',
+                watch:formFieldWatch,          
+            };
+            var formFieldCheckbox={
+                props:['title','fieldname','fieldvalue','options'],
+                data:function(){
+                    return {
+                        cur_fieldvalue:this.fieldvalue,
+                        cure_options:eval(this.options),
+                    }
+                },
+                watch:formFieldWatch,
+                template:'<div class="details-form-field" ><div class="tips"><span class="title">{{title}}</span></div>  <div class="content checkbox"> <span v-for="option in cure_options"><input type="checkbox" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="option.val">{{option.label}}</label></span> </div> </div>',
+            };
+            var formFieldRadio={
+                props:['title','fieldname','fieldvalue','options'],
+                data:function(){
+                    return {
+                        cur_fieldvalue:this.fieldvalue,
+                        cure_options:eval(this.options),
+                    }
+                },
+                watch:formFieldWatch,
+                template:'<div class="details-form-field" ><div class="tips"><span class="title">{{title}}</span></div><div class="content"> <span v-for="option in cure_options"><input type="radio" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="fieldname">{{option.label}}</label></span></div> </div>',
+            };
+
+            var formFieldSelect={
                 props:['title','fieldname','fieldvalue','validation','options'],
                 data:function(){
                     return {
                         cur_fieldvalue:this.fieldvalue,
-                        cure_options:eval(this.options),
                     }
                 },
-                watch:{
-                       cur_fieldvalue:function(newVal,oldVal){       
-                           this.$parent.$data['field_value'][this.fieldname]=newVal
-                       },
-                       fieldvalue:function(newVal,oldVal){
-                           this.cur_fieldvalue=newVal;
-                       },
-                },
-                template:'<div class="details-form-field" ><label class="title" >{{title}}</label> <select :id=fieldname :name=fieldname v-model=cur_fieldvalue> <option v-for="option in cure_options" :value="option.val">{{option.valtext}}</option> </select></div>',
-            });
-            
-            
-            Vue.component("form-field-checkbox",{
-                props:['title','fieldname','fieldvalue','options'],
-                data:function(){
-                    return {
-                        cur_fieldvalue:this.fieldvalue,
-                        cure_options:eval(this.options),
-                    }
-                },
-                watch:{
-                       cur_fieldvalue:function(newVal,oldVal){       
-                           this.$parent.$data['field_value'][this.fieldname]=newVal
-                       },
-                       fieldvalue:function(newVal,oldVal){
-                           this.cur_fieldvalue=newVal;
-                       },
-                },
-                template:'<div class="details-form-field" ><span class="title">{{title}}</span><span v-for="option in cure_options"><input type="checkbox" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="fieldname">{{option.label}}</label></span> </div>',
-            })
-            Vue.component("form-field-radio",{
-                props:['title','fieldname','fieldvalue','options'],
-                data:function(){
-                    return {
-                        cur_fieldvalue:this.fieldvalue,
-                        cure_options:eval(this.options),
-                    }
-                },
-                watch:{
-                       cur_fieldvalue:function(newVal,oldVal){       
-                           this.$parent.$data['field_value'][this.fieldname]=newVal
-                       },
-                       fieldvalue:function(newVal,oldVal){
-                           this.cur_fieldvalue=newVal;
-                       },
-                },
-                template:'<div class="details-form-field" ><span class="title">{{title}}</span><span v-for="option in cure_options"><input type="radio" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="fieldname">{{option.label}}</label></span> </div>',
-            })
-            
-            
-            
+                watch:formFieldWatch,
+                template:'<div class="details-form-field" > <div class="tips"> <label class="title" >{{title}}</label> </div> <div class="content"><select :id=fieldname :name=fieldname v-model=cur_fieldvalue> <option v-for="option in options" :value="option.val">{{option.label}}</option> </select> </div></div>',
+            }
+            var formComponents={
+                'form-field-text':formFieldText,
+                'form-field-select':formFieldSelect,
+                'form-field-checkbox':formFieldCheckbox,
+                'form-field-radio':formFieldRadio,
+
+            };
+
             Vue.component('vue-form',{
                 props:['formdata',],
+                components: formComponents,
                 data:function(){
                     return this.formdata;
                 },
@@ -100,6 +82,24 @@
                     return createElement("form",this.subEles(createElement))
                 },
                 methods:{
+                    doSubmit:function(e){
+                        var url = this.formdata.submitUrl;
+                        axios({ 
+                                url:url,     
+                                method:'post',
+                                transformRequest:[ function(data,headers){
+                                        return Qs.stringify(data);
+                                }],
+                                data:this.formdata.field_value,
+                                },
+                        )
+                        .then(function(response){
+                              console.log(response.data)
+                        })
+                        .catch(function(error){
+
+                        });
+                    },
                     subEles:function(createElement){
                         var eles=new Array();
                         for(var field in this.formdata.field_ele)
@@ -123,16 +123,28 @@
                             });
                             eles.push(ele);
                         }
+                        var submitBt=createElement('div',{
+                            attrs:{
+                                class:'button-submit',
+                            },
+                            on:{
+                                click:this.doSubmit,
+                            }
+                        },
+                        ['save'],
+                        );
+                        eles.push(submitBt);
                         return eles;
                     },
                 }
-
-            })
+            })      
         </script>
     </head>
     <body>
         <div id="app">
             <vue-form :formdata=formdata ></vue-form>
+        </div>
+        <div id="app2">
         </div>
         <script>
             var formdata={
@@ -145,7 +157,7 @@
                         country:{
                             title:'Country',
                             type:'select',
-                            options:[{val:1,'valtext':'A'},{val:2,'valtext':'B'},{val:3,'valtext':'C'}]
+                            options:[{val:1,'label':'A'},{val:2,'label':'B'},{val:3,'label':'C'}]
                         },
                         email:{
                             title:'Email',
@@ -178,6 +190,17 @@
                 },
             });
            jQuery("form").validate(formdata.field_validation);
+        </script>
+        
+        <script>
+        var form=new Vue({
+                el:"#app2",
+                render:function(createElement){
+                    return createElement("vue-form",{
+                        props:{formdata:formdata},
+                    })
+                },
+            });
         </script>
     </body>
 </html>
