@@ -13,6 +13,7 @@
         <script src="http://static.runoob.com/assets/jquery-validation-1.14.0/dist/jquery.validate.min.js"></script>
         <script src="http://static.runoob.com/assets/jquery-validation-1.14.0/dist/localization/messages_zh.js"></script>
         <script>
+            var formEleProps=['title','fieldname','fieldvalue','validation','toHide'];
             var formFieldWatch={
                        cur_fieldvalue:function(newVal,oldVal){    
                            this.$parent.formdata['field_value'][this.fieldname]=newVal
@@ -22,17 +23,17 @@
                        },
                 }
             var formFieldText={
-                props:['title','fieldname','fieldvalue','validation'],
+                props:formEleProps,
                 data:function(){
                     return {
                         cur_fieldvalue:this.fieldvalue,
                     }
                 },
-                template:'<div class="details-form-field" ><div class="tips"><label class="title" >{{title}}</label> </div> <div class="content"> <input  :id=fieldname :name=fieldname  v-model="cur_fieldvalue" /> </div></div>',
+                template:'<div  v-bind:class="{ hidden : toHide }"  class="details-form-field" ><div class="tips"><label class="title" >{{title}}</label> </div> <div class="content"> <input  :id=fieldname :name=fieldname  v-model="cur_fieldvalue" /> </div></div>',
                 watch:formFieldWatch,          
             };
             var formFieldCheckbox={
-                props:['title','fieldname','fieldvalue','options'],
+                props:formEleProps.concat(['options']),
                 data:function(){
                     return {
                         cur_fieldvalue:this.fieldvalue,
@@ -40,10 +41,10 @@
                     }
                 },
                 watch:formFieldWatch,
-                template:'<div class="details-form-field" ><div class="tips"><span class="title">{{title}}</span></div>  <div class="content checkbox"> <span v-for="option in cure_options"><input type="checkbox" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="option.val">{{option.label}}</label></span> </div> </div>',
+                template:'<div v-bind:class="{hidden:toHide}"  class="details-form-field" ><div class="tips"><span class="title">{{title}}</span></div>  <div class="content checkbox"> <span v-for="option in cure_options"><input type="checkbox" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="option.val">{{option.label}}</label></span> </div> </div>',
             };
             var formFieldRadio={
-                props:['title','fieldname','fieldvalue','options'],
+                props:formEleProps.concat(['options']),
                 data:function(){
                     return {
                         cur_fieldvalue:this.fieldvalue,
@@ -51,18 +52,18 @@
                     }
                 },
                 watch:formFieldWatch,
-                template:'<div class="details-form-field" ><div class="tips"><span class="title">{{title}}</span></div><div class="content"> <span v-for="option in cure_options"><input type="radio" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="fieldname">{{option.label}}</label></span></div> </div>',
+                template:'<div v-bind:class="{hidden:toHide}"  class="details-form-field" ><div class="tips"><span class="title">{{title}}</span></div><div class="content"> <span v-for="option in cure_options"><input type="radio" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="fieldname">{{option.label}}</label></span></div> </div>',
             };
 
             var formFieldSelect={
-                props:['title','fieldname','fieldvalue','validation','options'],
+                props:formEleProps.concat(['options']),
                 data:function(){
                     return {
                         cur_fieldvalue:this.fieldvalue,
                     }
                 },
                 watch:formFieldWatch,
-                template:'<div class="details-form-field" > <div class="tips"> <label class="title" >{{title}}</label> </div> <div class="content"><select :id=fieldname :name=fieldname v-model=cur_fieldvalue> <option v-for="option in options" :value="option.val">{{option.label}}</option> </select> </div></div>',
+                template:'<div v-bind:class="{hidden:toHide}"  class="details-form-field" > <div class="tips"> <label class="title" >{{title}}</label> </div> <div class="content"><select :id=fieldname :name=fieldname v-model=cur_fieldvalue> <option v-for="option in options" :value="option.val">{{option.label}}</option> </select> </div></div>',
             }
             var formComponents={
                 'form-field-text':formFieldText,
@@ -106,11 +107,13 @@
                         {
                             var type=this.formdata.field_ele[field].type;
                             var cpntName='form-field-'+type;
-                            var props={
-                                    title:this.formdata.field_ele[field]['title'],
-                                    fieldname:field,
-                                    fieldvalue:this.formdata.field_value[field],
-                                };
+                            var props={fieldname:field,fieldvalue:this.formdata.field_value[field]};
+                            
+                            for(var attr in this.formdata.field_ele[field])
+                            {
+                               props[attr]=this.formdata.field_ele[field][attr];
+                            }
+                            
                             if(type=='select'){
                                props.options=this.formdata.field_ele[field].options;
                             }    
@@ -153,6 +156,7 @@
                         warehouse:{
                             title:'Warehouse',
                             type:'text',
+                            toHide:true,
                         },
                         country:{
                             title:'Country',
