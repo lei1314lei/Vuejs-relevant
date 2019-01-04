@@ -3,14 +3,13 @@
         <title>TODO supply a title</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.js"></script>
-       <script src="https://ajax.googleapis.com/ajax/libs/prototype/1.7.3.0/prototype.js"></script>
-       <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-         
-        
-        
-       
-        <script src="http://static.runoob.com/assets/jquery-validation-1.14.0/dist/jquery.validate.min.js"></script>
+       <script src="../js/jquery.js"></script>
+       <script src="../js/prototype.js"></script>
+       <script src="../js/vue.js"></script>
+       <script src="../js/axios.min.js"></script>
+       <script src="../js/qs.min.js"></script>
+       <script src="../js/jquery.validate.js"></script>
+
         <script src="http://static.runoob.com/assets/jquery-validation-1.14.0/dist/localization/messages_zh.js"></script>
         <script>
             var formEleProps=['title','fieldname','fieldvalue','validation','toHide'];
@@ -54,7 +53,6 @@
                 watch:formFieldWatch,
                 template:'<div v-bind:class="{hidden:toHide}"  class="details-form-field" ><div class="tips"><span class="title">{{title}}</span></div><div class="content"> <span v-for="option in cure_options"><input type="radio" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="fieldname">{{option.label}}</label></span></div> </div>',
             };
-
             var formFieldSelect={
                 props:formEleProps.concat(['options']),
                 data:function(){
@@ -65,14 +63,44 @@
                 watch:formFieldWatch,
                 template:'<div v-bind:class="{hidden:toHide}"  class="details-form-field" > <div class="tips"> <label class="title" >{{title}}</label> </div> <div class="content"><select :id=fieldname :name=fieldname v-model=cur_fieldvalue> <option v-for="option in options" :value="option.val">{{option.label}}</option> </select> </div></div>',
             }
+            
+            
+            var cmpntMsgs={
+                props:['scsMsg','errorMsg'],
+                template:'<ul class="messages"><li v-if=showScsMsg class="success-msg"><ul><li v-for="msg in scsMsg"><span>{{msg}}</span></li></ul></li><li v-if=showErrMsg class="error-msg"><ul><li v-for="msg in errorMsg"><span>{{msg}}</span></li></ul></li></ul>',
+                computed:{
+                    showScsMsg:function(){
+                        var field='scsMsg';
+                        return this._show(field);
+                    },
+                    showErrMsg:function()
+                    {
+                        var field='errorMsg';
+                        return this._show(field);
+                    },
+                },
+                methods:{
+                    _show:function(field)
+                    {
+                        if(this[field] instanceof Array){
+                            return this[field].length>0?true:false;
+                        }else{
+                            return false;
+                        }
+                    }
+                }
+            }
+            
+            
             var formComponents={
                 'form-field-text':formFieldText,
                 'form-field-select':formFieldSelect,
                 'form-field-checkbox':formFieldCheckbox,
                 'form-field-radio':formFieldRadio,
-
+                'form-msgs':cmpntMsgs
             };
-
+            
+            
             Vue.component('vue-form',{
                 props:['formdata',],
                 components: formComponents,
@@ -84,7 +112,9 @@
                 },
                 methods:{
                     doSubmit:function(e){
+                        
                         var url = this.formdata.submitUrl;
+                        
                         axios({ 
                                 url:url,     
                                 method:'post',
@@ -95,14 +125,31 @@
                                 },
                         )
                         .then(function(response){
-                              console.log(response.data)
+                            this.formdata.msgs.scsMsg=[response.data];
+                            setTimeout("this.formdata.msgs=[]",3000);
                         })
                         .catch(function(error){
-
+                            this.formdata.msgs.errorMsg=[error];
+                            setTimeout("this.formdata.msgs=[]",3000);
+                            console.log(error);
                         });
+                    },
+                    msgsElem:function(createElement)
+                    {
+//                        if(typeof(this.formdata.msgs)=='undefined') 
+//                        {
+//                            this.formdata.msgs={
+//                                scsMsg:['aa','bb'],
+//                                errorMsg:['cc'],
+//                            }
+//                        }
+                        return createElement('form-msgs',{
+                            props:this.formdata.msgs
+                            })
                     },
                     subEles:function(createElement){
                         var eles=new Array();
+                        eles.push(this.msgsElem(createElement));
                         for(var field in this.formdata.field_ele)
                         {
                             var type=this.formdata.field_ele[field].type;
@@ -151,6 +198,11 @@
         </div>
         <script>
             var formdata={
+                    submitUrl:'http://test.local/JS/Vue/form/data.php',
+                    msgs:{
+                        'scsMsg':[],
+                        'errorMsg':[],
+                    },
                     field_value :{warehouse:"", country:"", email:"",'related_industry':"fashion",services_required:[]},
                     field_ele   :{
                         warehouse:{
@@ -197,7 +249,7 @@
         </script>
         
         <script>
-        var form=new Vue({
+        var form2=new Vue({
                 el:"#app2",
                 render:function(createElement){
                     return createElement("vue-form",{
