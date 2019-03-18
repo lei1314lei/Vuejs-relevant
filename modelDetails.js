@@ -107,7 +107,7 @@
                     return this.formdata;
                 },
                 render:function(createElement){
-                    return createElement("form",{attrs:{id:'vue-form'}},this.subEles(createElement))
+                    return createElement("div",{attrs:{class:'vue-model-details'}},this.subEles(createElement))
                 },
                 methods:{
                     msgsElem:function(createElement)
