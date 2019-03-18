@@ -64,31 +64,31 @@
             }
             
             
-            var cmpntMsgs={
-                props:['scsMsg','errorMsg'],
-                template:'<ul class="messages"><li v-if=showScsMsg class="success-msg"><ul><li v-for="msg in scsMsg"><span>{{msg}}</span></li></ul></li><li v-if=showErrMsg class="error-msg"><ul><li v-for="msg in errorMsg"><span>{{msg}}</span></li></ul></li></ul>',
-                computed:{
-                    showScsMsg:function(){
-                        var field='scsMsg';
-                        return this._show(field);
-                    },
-                    showErrMsg:function()
-                    {
-                        var field='errorMsg';
-                        return this._show(field);
-                    },
-                },
-                methods:{
-                    _show:function(field)
-                    {
-                        if(this[field] instanceof Array){
-                            return this[field].length>0?true:false;
-                        }else{
-                            return false;
-                        }
-                    }
-                }
-            }
+//            var cmpntMsgs={
+//                props:['scsMsg','errorMsg'],
+//                template:'<ul class="messages"><li v-if=showScsMsg class="success-msg"><ul><li v-for="msg in scsMsg"><span>{{msg}}</span></li></ul></li><li v-if=showErrMsg class="error-msg"><ul><li v-for="msg in errorMsg"><span>{{msg}}</span></li></ul></li></ul>',
+//                computed:{
+//                    showScsMsg:function(){
+//                        var field='scsMsg';
+//                        return this._show(field);
+//                    },
+//                    showErrMsg:function()
+//                    {
+//                        var field='errorMsg';
+//                        return this._show(field);
+//                    },
+//                },
+//                methods:{
+//                    _show:function(field)
+//                    {
+//                        if(this[field] instanceof Array){
+//                            return this[field].length>0?true:false;
+//                        }else{
+//                            return false;
+//                        }
+//                    }
+//                }
+//            }
             
             
             var modelComponents={
@@ -96,7 +96,7 @@
                 'form-field-select':modelFieldSelect,
                 'form-field-checkbox':modelFieldCheckbox,
                 'form-field-radio':modelFieldRadio,
-                'form-msgs':cmpntMsgs
+               // 'form-msgs':cmpntMsgs
             };
             
             
@@ -118,7 +118,7 @@
                     },
                     subEles:function(createElement){
                         var eles=new Array();
-                        eles.push(this.msgsElem(createElement));
+                      //  eles.push(this.msgsElem(createElement));
                         for(var field in this.formdata.field_ele)
                         {
                             var type=this.formdata.field_ele[field].type;
