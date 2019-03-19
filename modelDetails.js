@@ -1,12 +1,25 @@
-            var formEleProps=['title','fieldname','fieldvalue','validation','toHide'];
-            var modelFieldWatch={
-                       cur_fieldvalue:function(newVal,oldVal){    
-                           this.$parent.formdata['field_value'][this.fieldname]=newVal
-                       },
-                       fieldvalue:function(newVal,oldVal){
-                           this.cur_fieldvalue=newVal;
-                       },
-                }
+            var formEleProps=['title','fieldname','fieldvalue','validation','toHide','classes'];
+            var getClassForModelEles = function (classes,classForEle){
+                        var classStrForEachEle=' ';
+                        var hasCustomClassesForEle=classes.hasOwnProperty(classForEle);
+                        if(hasCustomClassesForEle)
+                        {
+                            var classForhField=classes[classForEle];
+                            for (var i=0;i<classForhField.length;i++){
+                                classStrForEachEle +=" "+classForhField[i];
+                            }
+                            classStrForEachEle;
+                        }
+                        return classStrForEachEle;
+            }
+//            var modelFieldWatch={
+//                       cur_fieldvalue:function(newVal,oldVal){    
+//                           this.$parent.formdata['field_value'][this.fieldname]=newVal
+//                       },
+//                       fieldvalue:function(newVal,oldVal){
+//                           this.cur_fieldvalue=newVal;
+//                       },
+//                }
             var modelFieldText={
                 props:formEleProps,
                 data:function(){
@@ -14,7 +27,12 @@
                         cur_fieldvalue:this.fieldvalue,
                     }
                 },
-                template:'<div  v-bind:class="{ hidden : toHide }"  class="model-field" ><div class="label">{{title}}</div> <div class="value">  {{cur_fieldvalue}} </div></div>',
+                created:function (){
+                    this.cur_customClassForField=getClassForModelEles(this.classes,'for_ele_field');
+                    this.cur_customClassForLabel=getClassForModelEles(this.classes,'for_ele_label');
+                    this.cur_customClassForVal=getClassForModelEles(this.classes,'for_ele_val');
+                },
+                template:'<div  v-bind:class="{ hidden : toHide }"  class="model-field" :class="cur_customClassForField"><div class="label" :class="cur_customClassForLabel">{{title}}</div> <div class="value" :class="cur_customClassForVal">  {{cur_fieldvalue}} </div></div>',
                 //watch:modelFieldWatch,          
             };
             var modelFieldCheckbox={
@@ -25,8 +43,13 @@
                         cure_options:eval(this.options),
                     }
                 },
+                created:function (){
+                    this.cur_customClassForField=getClassForModelEles(this.classes,'for_ele_field');
+                    this.cur_customClassForLabel=getClassForModelEles(this.classes,'for_ele_label');
+                    this.cur_customClassForVal=getClassForModelEles(this.classes,'for_ele_val');
+                },
                 //watch:modelFieldWatch,
-                template:'<div v-bind:class="{hidden:toHide}"  class="model-field" ><div class="label">{{title}}</div>  <div class="value checkbox"> <span v-for="option in cure_options"><input type="checkbox" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="option.val">{{option.label}}</label></span> </div> </div>',
+                template:'<div v-bind:class="{hidden:toHide}"  class="model-field" :class="cur_customClassForField"><div class="label" :class="cur_customClassForLabel">{{title}}</div>  <div class="value checkbox" :class="cur_customClassForVal"> <span v-for="option in cure_options"><input type="checkbox" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="option.val">{{option.label}}</label></span> </div> </div>',
             };
             var modelFieldRadio={
                 props:formEleProps.concat(['options']),
@@ -34,16 +57,39 @@
                     return {
                         cur_fieldvalue:this.fieldvalue,
                         cure_options:eval(this.options),
+                        cur_customClassForField:this.customClassForField,
                     }
                 },
+                created:function (){
+                    
+                     this.cur_readbleVal='';
+                    if(typeof(this.fieldvalue)!='undefined')
+                    {
+                        for(fieldvalue in this.options)
+                        {
+                            if(fieldvalue==this.fieldvalue)
+                            {
+
+                                this.cur_readbleVal=this.options[fieldvalue].label;
+                                break;
+                            }
+                        }
+                    }
+
+                    
+                    this.cur_customClassForField=getClassForModelEles(this.classes,'for_ele_field');
+                    this.cur_customClassForLabel=getClassForModelEles(this.classes,'for_ele_label');
+                    this.cur_customClassForVal=getClassForModelEles(this.classes,'for_ele_val');
+                },
                 //watch:modelFieldWatch,
-                template:'<div v-bind:class="{hidden:toHide}"  class="model-field" ><div class="label">{{title}}</div><div class="value"> <span v-for="option in cure_options"><input type="radio" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="fieldname">{{option.label}}</label></span></div> </div>',
+                template:'<div v-bind:class="{hidden:toHide}"  class="model-field" :class="cur_customClassForField" ><div class="label" :class="cur_customClassForLabel">{{title}}</div><div class="value" :class="cur_customClassForVal"> {{cur_readbleVal}}</div> </div>',
             };
             var modelFieldSelect={
                 props:formEleProps.concat(['options','readableVal']),
                 data:function(){
                     return {
                         cur_fieldvalue:this.fieldvalue,
+                        cur_customClassForField:this.customClassForField,
                     }
                 },
                 created:function()
@@ -56,11 +102,12 @@
                             break;
                         }
                     }
-                    
-                    console.log(this);
+                    this.cur_customClassForField=getClassForModelEles(this.classes,'for_ele_field');
+                    this.cur_customClassForLabel=getClassForModelEles(this.classes,'for_ele_label');
+                    this.cur_customClassForVal=getClassForModelEles(this.classes,'for_ele_val');
                 },
                 //watch:modelFieldWatch,
-                template:'<div v-bind:class="{hidden:toHide}"  class="model-field" > <div class="label">{{title}}</div> <div class="value">{{this.cur_readbleVal}}</div></div>',
+                template:'<div v-bind:class="{hidden:toHide}"  class="model-field"  :class="cur_customClassForField"> <div class="label" :class="cur_customClassForLabel">{{title}}</div> <div class="value" :class="cur_customClassForVal">{{this.cur_readbleVal}}</div></div>',
             }
             
             
@@ -107,7 +154,58 @@
                     return this.formdata;
                 },
                 render:function(createElement){
-                    return createElement("div",{attrs:{class:'vue-model-details'}},this.subEles(createElement))
+                    var classStr='model-details';
+                    var hasCustomClasses=this.formdata.hasOwnProperty("classes");
+                    if(hasCustomClasses)
+                    {
+//                        var classes=this.formdata.classes;
+//                        var hasCustomClassesForEle=classes.hasOwnProperty("for_ele_details");
+//                        if(hasCustomClassesForEle)
+//                        {
+//                            var classForDetailsContainer=classes.for_ele_details;
+//                            for (var i=0;i<classForDetailsContainer.length;i++){
+//                                classStr +=" "+classForDetailsContainer[i];
+//                            }
+//                        }
+                        classStr+=getClassForModelEles(this.formdata.classes,"for_ele_details");
+                        
+//                        var classStrForEachEle=' ';
+//                        var hasCustomClassesForEle=classes.hasOwnProperty("for_ele_field");
+//                        if(hasCustomClassesForEle)
+//                        {
+//                            var classForhField=classes.for_ele_field;
+//                            for (var i=0;i<classForhField.length;i++){
+//                                classStrForEachEle +=" "+classForhField[i];
+//                            }
+//                            this.customClassForField=classStrForEachEle;
+//                        }
+//                        var classStrForEachEle=' ';
+//                        var hasCustomClassesForEle=classes.hasOwnProperty("for_ele_val");
+//                        if(hasCustomClassesForEle)
+//                        {
+//                            var customClassesForEle=classes.for_ele_label;
+//                            for (var i=0;i<customClassesForEle.length;i++){
+//                                classStrForEachEle +=" "+customClassesForEle[i];
+//                            }
+//                            this.customClassForLabel=classStrForEachEle;
+//                        }
+//                        
+//                        var classStrForEachEle=' ';
+//                        var hasCustomClassesForEle=classes.hasOwnProperty("for_ele_val");
+//                        if(hasCustomClassesForEle)
+//                        {
+//                            var customClassesForEle=classes.for_ele_val;
+//                            for (var i=0;i<customClassesForEle.length;i++){
+//                                classStrForEachEle +=" "+customClassesForEle[i];
+//                            }
+//                            this.customClassForVal=classStrForEachEle;
+//                        }
+                        
+                    }
+
+                    
+                    
+                    return createElement("div",{attrs:{class:classStr}},this.subEles(createElement))
                 },
                 methods:{
                     msgsElem:function(createElement)
@@ -123,7 +221,7 @@
                         {
                             var type=this.formdata.field_ele[field].type;
                             var cpntName='form-field-'+type;
-                            var props={fieldname:field,fieldvalue:this.formdata.field_value[field]};
+                            var props={fieldname:field,fieldvalue:this.formdata.field_value[field],classes:this.formdata.classes};
                             
                             for(var attr in this.formdata.field_ele[field])
                             {

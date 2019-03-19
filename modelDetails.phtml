@@ -1,0 +1,28 @@
+<?php 
+$entityData=$this->getEntitData(true);
+$eles=$this->getFormEles(true);
+$rules=$this->getValidationRules(true);
+if($eles):
+?>
+<div id="app">
+    <vue-model-details :formdata=formdata ></vue-model-details>
+</div>
+        <script>    
+            var formdata={
+                    field_value :<?php  echo $entityData; ?> ,
+                    field_ele   : <?php echo $eles; ?> ,
+                    field_validation : <?php  echo $rules ; ?> ,
+                    classes:{'for_ele_field':['layout-cols-container','layout-col-45'],
+                             'for_ele_details':['layout-cols-container','sapce-between','layout-cols-wrap'],
+                             'for_ele_label':['layout-col-50','layout-cols-container','align-items-center'],
+                             'for_ele_val':['layout-col-50','layout-cols-container','align-items-center'],
+                         },
+                };
+            var modelDetails=new Vue({
+                el:"#app",
+                data:{
+                    formdata:formdata
+                },
+            });
+        </script>
+<?php endif; ?>
