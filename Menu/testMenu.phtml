@@ -1,0 +1,72 @@
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="../js/vue.js"></script>
+        <script src="menu.js"></script>
+    </head>
+<script type="text/javascript">
+    
+  var baseUrl="http://4s/" ;
+  var menuItems=[
+      {
+          'level':1,
+          'title':'About Us',
+          'link':baseUrl+'wms-about-us',
+          'class':"class-for-item",
+          'subitems':[
+                {'level':2, 'title':"Who we are?",'link':baseUrl+'wms-about-us#who'},
+                {'level':2,'title':"Contact Us",'link':baseUrl+'wms-about-us#contact' }
+          ]
+      },
+     {
+         "level":1,
+          "title": 'Soluctions',
+          'link':baseUrl+'wms-solutions',
+          'subitems':[
+            {'level':2, "title":"Order Fulfillment",'link':baseUrl+'wms-solutions#fulfillment'},
+            {'level':2, "title" : "Efficient Warehouse Space Management"  , 'link':baseUrl+'wms-solutions#mngmt'},
+            {'level':2, "title" : "AI-Enabled Network Analysis"  , 'link':baseUrl+'wms-solutions#network'},
+            {'level':2, "title" : "AI-Enabled On-demand Warehouse Cost Predictor" , 'link':baseUrl+'wms-solutions#predictor'},
+          ]
+
+      },
+      {
+          "level":1,
+          "title":'Resources',
+          'link':baseUrl+'wms-resources',
+          'subitems':[
+                { 'level':2, "title" : "Top Supply Chain Trends in the next Decade", 'link':baseUrl+'wms-resources#trends'},
+                { 'level':2, "title" :"What do our customers say?", 'link':baseUrl+'wms-resources#evaluation'},
+                { 'level':2,"title" : "Blog", 'link':baseUrl+'wms-resources#blog'},
+                { 'level':2,"title" : "FAQs", 'link':baseUrl+'wms-resources#FAQs'},
+                { 'level':2,"title" : "Glossary", 'link':baseUrl+'wms-resources#glossary'},
+          ]
+      },
+      {
+          "levl":1,
+          "title":'Support ',
+          'subitems':[
+                {'level':2,"title": 'Live Support (24x7)'},
+                {'level':2,"title":'Request Demo'},
+                {'level':2,"title": 'Register Complaints'},
+          ]
+      }
+  ]
+  var menuData={
+          'items':menuItems,
+          "class":"layout-cols-container sapce-between",
+      } ;
+</script>
+<div id="footer-menu-container">
+   <vue-menu  :menu_data=dataForMenu   ></vue-menu>
+</div>
+
+<script type="text/javascript">
+    var footerMenu=new Vue({
+        el:"#footer-menu-container",
+        data:{
+            dataForMenu:menuData,
+        },
+    });
+</script>
