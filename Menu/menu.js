@@ -22,7 +22,7 @@ Vue.component('vue-menu',{
     methods:{
         subEles:function(createElement){
                 var eles=new Array();
-                for(var i in this.items)
+                for(var i=0 ; i<this.items.length; i++)
                 {
                   var ele=createElement('menu-item',{
                       props:{linkItem:this.items[i]},

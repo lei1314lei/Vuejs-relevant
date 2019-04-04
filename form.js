@@ -40,13 +40,35 @@
                 template:'<div v-bind:class="{hidden:toHide}"  class="details-form-field" ><div class="tips"><span class="title">{{title}}</span></div><div class="content"> <span v-for="option in cure_options"><input type="radio" :id="option.val" :value="option.val" v-model="cur_fieldvalue"><label :for="fieldname">{{option.label}}</label></span></div> </div>',
             };
             var formFieldSelect={
-                props:formEleProps.concat(['options']),
+                props:formEleProps.concat(['options','subSelect','subOptions']),
                 data:function(){
                     return {
                         cur_fieldvalue:this.fieldvalue,
                     }
                 },
-                watch:formFieldWatch,
+                watch:{
+                       cur_fieldvalue:function(newVal,oldVal){    
+                           this.$parent.formdata['field_value'][this.fieldname]=newVal
+                           if(this.subSelect)
+                           {
+                                this.$parent.formdata['field_ele'][this.subSelect].options=this.getSubOptions(newVal);   
+                                this.$parent.formdata['field_value'][this.subSelect]='';
+                           }
+                       },
+                       fieldvalue:function(newVal,oldVal){
+                           this.cur_fieldvalue=newVal;
+                       },
+                },
+                methods:{
+                    getSubOptions:function(newVal){
+                        if(this.subOptions && this.subOptions.hasOwnProperty(newVal))
+                        {
+                            return this.subOptions[newVal];
+                        }else{
+                            return [];
+                        }
+                    }
+                },
                 template:'<div v-bind:class="{hidden:toHide}"  class="details-form-field" > <div class="tips"> <label class="title" >{{title}}</label> </div> <div class="content"><select :id=fieldname :name=fieldname v-model=cur_fieldvalue> <option v-for="option in options" :value="option.val">{{option.label}}</option> </select> </div></div>',
             }
             
@@ -94,31 +116,44 @@
                     return this.formdata;
                 },
                 render:function(createElement){
-                    return createElement("form",this.subEles(createElement))
+                    return createElement("form",{attrs:{id:'vue-form'}},this.subEles(createElement))
                 },
                 methods:{
                     doSubmit:function(e){
+                        var vueForm=jQuery("#vue-form");
+                        if(vueForm.size()>1)
+                        {
+                            alert("just can't support more than one form in one page by now");
+                        }
+                        var validator=vueForm.validate(formdata.field_validation);
+                        if(validator.form())
+                        {
+                            var url = this.formdata.submitUrl;
+                            axios({ 
+                                    url:url,     
+                                    method:'post',
+                                    transformRequest:[ function(data,headers){
+                                            return Qs.stringify(data);
+                                    }],
+                                    data:this.formdata.field_value,
+                                    },
+                            )
+                            .then(function(response){
+                                if(response.data.hasOwnProperty('field_value'))
+                                {
+                                    this.formdata.field_value=response.data.field_value;
+                                    this.formdata.to_create_new_model=0;
+                                }
+                                this.formdata.msgs.scsMsg=[response.data.msg];
+                                //setTimeout("this.formdata.msgs.scsMsg=[]",3000);
+                            })
+                            .catch(function(error){
+                                this.formdata.msgs.errorMsg=[error.toString()];
+                                //setTimeout("this.formdata.msgs.errorMsg=[]",3000);
+                            });
+                        }
                         
-                        var url = this.formdata.submitUrl;
-                        
-                        axios({ 
-                                url:url,     
-                                method:'post',
-                                transformRequest:[ function(data,headers){
-                                        return Qs.stringify(data);
-                                }],
-                                data:this.formdata.field_value,
-                                },
-                        )
-                        .then(function(response){
-                            this.formdata.msgs.scsMsg=[response.data];
-                            setTimeout("this.formdata.msgs.scsMsg=[]",3000);
-                        })
-                        .catch(function(error){
-                            this.formdata.msgs.errorMsg=[error];
-                            setTimeout("this.formdata.msgs.errorMsg=[]",3000);
-                            console.log(error);
-                        });
+
                     },
                     msgsElem:function(createElement)
                     {
@@ -149,6 +184,15 @@
                             
                             if(type=='select'){
                                props.options=this.formdata.field_ele[field].options;
+                               if(this.formdata.field_ele[field].hasOwnProperty('subSelect'))
+                               {
+                                   props.subSelect=this.formdata.field_ele[field].subSelect;
+                               }
+                               if(this.formdata.field_ele[field].hasOwnProperty('subOptions'))
+                               {
+                                   props.subOptions=this.formdata.field_ele[field].subOptions;
+                               }
+                               
                             }    
                             else if(type=='checkbox' || type=='radio')
                             {
@@ -159,7 +203,11 @@
                             });
                             eles.push(ele);
                         }
+                        var btProps={
+                            'is_new':1,
+                        }
                         var submitBt=createElement('div',{
+                            props:['is_new'],
                             attrs:{
                                 class:'button-submit',
                             },
